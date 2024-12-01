@@ -1,7 +1,7 @@
 # Advent of Code 2015: Day 6
 # @Author: Linus Horn
 
-from r import get_data
+from aoc import get_data
 
 data = get_data(6)
 
