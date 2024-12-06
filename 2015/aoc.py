@@ -1,5 +1,8 @@
+# @Author: Linus Horn
 
-
-def get_data(day_num: int) -> str:
+def get_data(day_num: int, splitlines: bool = True) -> str | list[str]:
     with open(f"./data/{day_num}.txt") as f:
-        return f.read()
+        data = f.read()
+    if splitlines:
+        return data.split("\n")
+    return data
