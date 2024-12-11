@@ -1,4 +1,4 @@
-# Advent of Code 2024: Day 9
+# Advent of Code 2024: Day 10
 from aoc import get_data
 from tqdm import tqdm
 data = get_data(10, splitlines=True)
