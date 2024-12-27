@@ -27,9 +27,9 @@ def get_data(day_num: int, splitlines: bool = True, year_num: int = -1) -> list[
     return data.rstrip()
 
 
-def printd(*args):
+def printd(*args, **kwargs):
     if DEBUG:
-        print(*args)
+        print(*args, **kwargs)
 
 def set_debug(debug: bool):
     global DEBUG
@@ -41,3 +41,10 @@ def get_debug():
 
 num_re = re.compile(r"-?\d+")
 
+def nums(s: str) -> list[int | float]:
+    matches = num_re.findall(s)
+    try:
+        return [int(x) if '.' not in x else float(x) for x in matches]
+    except ValueError:
+        printd(f"Warning: Could not convert all matches to numbers in string: {s}")
+        return []
