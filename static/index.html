@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AoC as a Service</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <h1>AoC as a Service</h1>
+    
+    <select id="year-select">
+        <option value="">Select Year</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="2015">2015</option>
+    </select>
+
+    <select id="day-select">
+        <option value="">Select Day</option>
+        <option value="1">Day 1</option>
+        <option value="2">Day 2</option>
+        <option value="3">Day 3</option>
+        <option value="4">Day 4</option>
+        <option value="5">Day 5</option>
+        <option value="6">Day 6</option>
+        <option value="7">Day 7</option>
+        <option value="8">Day 8</option>
+        <option value="9">Day 9</option>
+        <option value="10">Day 10</option>
+        <option value="11">Day 11</option>
+        <option value="12">Day 12</option>
+        <option value="13">Day 13</option>
+        <option value="14">Day 14</option>
+        <option value="15">Day 15</option>
+        <option value="16">Day 16</option>
+        <option value="17">Day 17</option>
+        <option value="18">Day 18</option>
+        <option value="19">Day 19</option>
+        <option value="20">Day 20</option>
+        <option value="21">Day 21</option>
+        <option value="22">Day 22</option>
+        <option value="23">Day 23</option>
+        <option value="24">Day 24</option>
+        <option value="25">Day 25</option>
+    </select>
+
+    <textarea id="input-text" rows="10" cols="50" placeholder="Input will appear here..."></textarea>
+    <button id="submit-button" onclick="submitInput()">Submit</button>
+
+    <div id="output">
+        <div id="part1-output-container">
+            <h2>Part 1 Output</h2>
+            <h2 id="part1-output"></h2>
+            <button id="part1-copy-button">Copy Part 1</button>
+        </div>
+        <div id="part2-output-container">
+            <h2>Part 2 Output</h2>
+            <h2 id="part2-output"></h2>
+            <button id="part2-copy-button">Copy Part 2</button>
+        </div>
+    </div>
+    <script>
+        const yearSelect = document.getElementById('year-select');
+        const daySelect = document.getElementById('day-select');
+        const inputText = document.getElementById('input-text');
+        const submitButton = document.getElementById('submit-button');
+
+        const part1Output = document.getElementById('part1-output');
+        const part2Output = document.getElementById('part2-output');
+        const part1CopyButton = document.getElementById('part1-copy-button');
+        const part2CopyButton = document.getElementById('part2-copy-button');
+
+        function submitInput() {
+            const year = yearSelect.value;
+            const day = daySelect.value;
+            const input = inputText.value;
+
+            if (!year || !day || !input) {
+                alert('Please select a year, day, and provide input.');
+                return;
+            }
+
+            const inputLines = input.split('\n').map(line => line.trim());
+
+            fetch(`/aoc/${year}/${day}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inputLines)
+            }).then(response => { return response.json(); })
+              .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    part1Output.textContent = `${data.part_1}`;
+                    part2Output.textContent = `${data.part_2}`;
+                }
+              });
+        }
+
+        addEventListener('DOMContentLoaded', () => {
+            part1CopyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(part1Output.textContent);
+            });
+            part2CopyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(part2Output.textContent);
+            });
+        });
+
+    </script>
+</body>
+</html>

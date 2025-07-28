@@ -1,9 +1,7 @@
 # Advent of Code 2024: Day 4
 # @Author: Linus Horn
-from aoc import get_data
-data = get_data(4, splitlines=True)
 
-# Part 1
+
 
 def count_xmas(data: list[str]) -> int:
     rows = len(data)
@@ -38,8 +36,6 @@ def count_xmas(data: list[str]) -> int:
     
     return count
 
-print(count_xmas(data))
-
 
 # Part 2
 
@@ -63,4 +59,15 @@ def count_x_mas(data: list[str]) -> int:
     
     return count
 
-print(count_x_mas(data))
+
+def solve_day_4(data: list[str]) -> tuple[int, int]:
+    part_1 = count_xmas(data)
+    part_2 = count_x_mas(data)
+    return part_1, part_2
+
+if __name__ == "__main__":
+    from aoc import get_data
+    data = get_data(4, splitlines=True)
+    part_1, part_2 = solve_day_4(data)
+    print(f"Part 1: {part_1}")
+    print(f"Part 2: {part_2}")
