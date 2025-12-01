@@ -1,0 +1,48 @@
+# aoc.py
+# @Description: Helper functions for Advent of Code
+# @Author: Linus Horn
+import os
+import re
+
+DEBUG = False
+
+def get_data(day_num: int, splitlines: bool = True, year_num: int = -1) -> tuple[list[str], str]:
+    if year_num != -1:
+        fp = f"./{year_num}/data/{day_num}.txt"
+        if not os.path.exists(fp):
+            fp = f"./data/{day_num}.txt"
+    else:
+        fp = f"./data/{day_num}.txt"
+    if not os.path.exists(fp):
+        print(f"Data for day {day_num} not found.")
+        print(f"If you cloned this from GitHub, make sure to create {fp} and paste your puzzle input there.")
+        raise FileNotFoundError
+
+    with open(fp) as f:
+        data = f.read()
+        lines = data.splitlines()
+        return [line.rstrip() for line in lines if line.strip()], data.rstrip()
+
+
+def printd(*args, **kwargs):
+    if DEBUG:
+        print(*args, **kwargs)
+
+def set_debug(debug: bool):
+    global DEBUG
+    DEBUG = debug
+
+def get_debug():
+    global DEBUG
+    return DEBUG
+
+num_re = re.compile(r"-?\d+")
+
+def nums(s: str) -> list[int | float]:
+    matches = num_re.findall(s)
+    try:
+        return [int(x) if '.' not in x else float(x) for x in matches]
+    except ValueError:
+        printd(f"Warning: Could not convert all matches to numbers in string: {s}")
+        return []
+
