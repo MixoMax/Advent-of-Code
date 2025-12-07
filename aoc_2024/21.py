@@ -1,7 +1,6 @@
 # Advent of Code 2024: Day 21
-from aoc import get_data, printd, set_debug, get_debug, nums
-from collections import deque
-from typing import Dict, List, Set, Tuple
+from aoc import get_data, printd, set_debug
+from functools import lru_cache
 
 set_debug(True)
 
@@ -16,10 +15,10 @@ data: list[str] = get_data(day_num=21, splitlines=True)
 # A = Enter
 
 KEYPAD = {
-    "7": (0, 3), "8": (1, 3), "9": (2, 3),
-    "4": (0, 2), "5": (1, 2), "6": (2, 2),
-    "1": (0, 1), "2": (1, 1), "3": (2, 1),
-                 "0": (1, 0), "A": (2, 0)
+    "7": 0+0j, "8": 1+0j, "9": 2+0j,
+    "4": 0+1j, "5": 1+1j, "6": 2+1j,
+    "1": 0+2j, "2": 1+2j, "3": 2+2j,
+    "X": 0+3j, "0": 1+3j, "A": 2+3j
 }
 
 # Arrow key pad
@@ -28,140 +27,49 @@ KEYPAD = {
 #
 # A = Enter
 ARROW_KEYPAD = {
-                 "^": (1, 1), "A": (2, 1),
-    "<": (0, 0), "v": (1, 0), ">": (2, 0)
+    "X": 0+0j, "^": 1+0j, "A": 2+0j,
+    "<": 0+1j, "v": 1+1j , ">": 2+1j
 }
 
-def sequence_for_code(code:str) -> str:
-    # calculate the sequence of movements (<^>vA) for a given code
-    # (<^>v) are the directions, A means press the button
-    # starting position is always hovering over A
+def path(start_str, end_str):
+    keypad = KEYPAD if (start_str in KEYPAD and end_str in KEYPAD) else ARROW_KEYPAD
 
-    start_pos = KEYPAD["A"]
-    def sequence_for_move(start_pos: tuple[int, int], end_pos: tuple[int, int]) -> str:
-        # calculate the sequence of movements (<^>v) for a given move
-        if 0 not in start_pos:
-            # start pos is 8,9,5,6,2 or 3
-            # means, we can just move directly to the end pos
-            delta_x = end_pos[0] - start_pos[0]
-            delta_y = end_pos[1] - start_pos[1]
-            out_str = ""
-            if delta_x > 0:
-                out_str += ">" * abs(delta_x)
-            elif delta_x < 0:
-                out_str += "<" * abs(delta_x)
-            if delta_y > 0:
-                out_str += "v" * abs(delta_y)
-            elif delta_y < 0:
-                out_str += "^" * abs(delta_y)
-            return out_str + "A"
-        else:
-            # we can not hover over the empty space next to 0
-            if start_pos[0] == 0:
-                # start pos is 1,4 or 7
-                # we need to move horizontally first, then vertically
-                horizontal_first = True
-            else:
-                # start pos is 3,6 or 9
-                # we need to move vertically first, then horizontally
-                horizontal_first = False
-            
-            delta_x = end_pos[0] - start_pos[0]
-            delta_y = end_pos[1] - start_pos[1]
-            out_str = ""
-            if horizontal_first:
-                if delta_x > 0:
-                    out_str += ">" * abs(delta_x)
-                elif delta_x < 0:
-                    out_str += "<" * abs(delta_x)
-                if delta_y > 0:
-                    out_str += "v" * abs(delta_y)
-                elif delta_y < 0:
-                    out_str += "^" * abs(delta_y)
-            else:
-                if delta_y > 0:
-                    out_str += "v" * abs(delta_y)
-                elif delta_y < 0:
-                    out_str += "^" * abs(delta_y)
-                if delta_x > 0:
-                    out_str += ">" * abs(delta_x)
-                elif delta_x < 0:
-                    out_str += "<" * abs(delta_x)
-            return out_str + "A"
+    start = keypad[start_str]
+    end = keypad[end_str]
+    delta = end - start
+    dx, dy = int(delta.real), int(delta.imag)
+    y_steps = ("^" * -dy) + ("v" * dy)
+    x_steps = ("<" * -dx) + (">" * dx)
     
-    out_sequence = ""
-    for target in code:
-        target_pos = KEYPAD[target]
-        out_sequence += sequence_for_move(start_pos, target_pos)
-        start_pos = target_pos
-    return out_sequence
+    bad = keypad["X"] - start
+    do_y_first = (dx>0 or bad == dx) and bad != dy*1j
+    if do_y_first:
+        return y_steps + x_steps + "A"
+    else:
+        return x_steps + y_steps + "A"
 
 
-def sequence_for_sequence(sequence: str) -> str:
-    # calculate the sequence of movements (<^>vA) for a given sequence
-    # (<^>v) are the directions, A means press the button
-    # starting position is always hovering over A
-    # basically the same as sequence_for_code, but use the Arrow key pad
-    start_pos = ARROW_KEYPAD["A"]
+@lru_cache(maxsize=None)
+def length_of_sequence_for_code(code: str, depth: int):
+    if depth == 0: return len(code)
 
-    def sequence_for_move_2(start_pos: tuple[int, int], end_pos: tuple[int, int]) -> str:
-        # calculate the sequence of movements (<^>v) for a given move
-        if start_pos != (0,0) and end_pos != (0,0):
-            # start_pos and end_pos are both not <, so we can move directly
-            delta_x = end_pos[0] - start_pos[0]
-            delta_y = end_pos[1] - start_pos[1]
-            out_str = ""
-            if delta_x > 0:
-                out_str += ">" * abs(delta_x)
-            elif delta_x < 0:
-                out_str += "<" * abs(delta_x)
-            if delta_y > 0:
-                out_str += "v" * abs(delta_y)
-            elif delta_y < 0:
-                out_str += "^" * abs(delta_y)
-            return out_str + "A"
-        else:
-            if start_pos == (0,0):
-                # start_pos is <, so we need to move horizontally first
-                horizontal_first = True
-            else:
-                # end_pos is <, so we need to move vertically first
-                horizontal_first = False
-            
-            delta_x = end_pos[0] - start_pos[0]
-            delta_y = end_pos[1] - start_pos[1]
-            out_str = ""
+    s = 0
+    for idx, char in enumerate(code):
+        s += length_of_sequence_for_code(path(code[idx-1], char), depth-1)
+    return s
 
-            if horizontal_first:
-                if delta_x > 0:
-                    out_str += ">" * abs(delta_x)
-                elif delta_x < 0:
-                    out_str += "<" * abs(delta_x)
-                if delta_y > 0:
-                    out_str += "v" * abs(delta_y)
-                elif delta_y < 0:
-                    out_str += "^" * abs(delta_y)
-            else:
-                if delta_y > 0:
-                    out_str += "v" * abs(delta_y)
-                elif delta_y < 0:
-                    out_str += "^" * abs(delta_y)
-                if delta_x > 0:
-                    out_str += ">" * abs(delta_x)
-                elif delta_x < 0:
-                    out_str += "<" * abs(delta_x)
-            return out_str + "A"
-    
-    out_sequence = ""
-    for target in sequence:
-        target_pos = ARROW_KEYPAD[target]
-        out_sequence += sequence_for_move_2(start_pos, target_pos)
-        start_pos = target_pos
-    return out_sequence
-
-n_sum = 0
+s = 0
 for code in data:
-    seq = sequence_for_sequence(sequence_for_sequence(sequence_for_code(code)))
-    printd(f"{code=} {seq=} {len(seq)=}")
-    
-    
+    l = length_of_sequence_for_code(code, 3)
+    complexity = int(code[:-1]) * l
+    printd(f"Code: {code}, Length: {l}, Complexity: {complexity}")
+    s += complexity
+print(s)
+
+s = 0
+for code in data:
+    l = length_of_sequence_for_code(code, 26)
+    complexity = int(code[:-1]) * l
+    printd(f"Code: {code}, Length: {l}, Complexity: {complexity}")
+    s += complexity
+print(s)

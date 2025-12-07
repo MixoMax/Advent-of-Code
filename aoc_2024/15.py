@@ -1,5 +1,6 @@
 # Advent of Code 2024: Day 15
 from aoc import get_data, printd, set_debug, get_debug
+import time
 set_debug(False)
 data = get_data(15, splitlines=False, year_num=2024)
 
@@ -87,7 +88,8 @@ for move in move_attempts:
         case (0, -1): printd("<")
         case (0, 1): printd(">")
     make_move(move)
-    print_board()
+    print_board(True)
+    time.sleep(0.1)
 
 print_board(True)
 

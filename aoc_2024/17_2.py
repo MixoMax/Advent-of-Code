@@ -3,7 +3,7 @@ from aoc import get_data, printd, set_debug, get_debug
 set_debug(True)
 data = get_data(17, splitlines=True, year_num=2024)
 
-global isnatructionj_pointer, output, reg_A, reg_B, reg_C, mem
+global instruction_pointer, output, reg_A, reg_B, reg_C, mem
 
 instruction_pointer = 0
 

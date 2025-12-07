@@ -6,7 +6,7 @@ import re
 
 DEBUG = False
 
-def get_data(day_num: int, splitlines: bool = True, year_num: int = -1) -> tuple[list[str], str]:
+def get_data(day_num: int, year_num: int = -1, strip: bool = True) -> tuple[list[str], str]:
     if year_num != -1:
         fp = f"./{year_num}/data/{day_num}.txt"
         if not os.path.exists(fp):
@@ -18,11 +18,14 @@ def get_data(day_num: int, splitlines: bool = True, year_num: int = -1) -> tuple
         print(f"If you cloned this from GitHub, make sure to create {fp} and paste your puzzle input there.")
         raise FileNotFoundError
 
-
     with open(fp) as f:
         data = f.read()
         lines = data.splitlines()
-        return [line.rstrip() for line in lines if line.strip()], data.rstrip()
+        data_str = data
+        if strip:
+            lines = [line.rstrip() for line in lines if line.strip()]
+            data_str = data.rstrip()
+        return lines, data_str
 
 
 def printd(*args, **kwargs):

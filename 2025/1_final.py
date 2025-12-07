@@ -9,4 +9,3 @@ for line in get_data(1, year_num=2025)[0]:
     num_zeros_hit += int(n==0)
 print(num_zeros_hit)
 print(num_zeros_overflown)
-
